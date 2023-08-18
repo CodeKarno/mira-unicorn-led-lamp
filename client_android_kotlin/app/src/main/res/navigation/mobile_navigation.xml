@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_graph"
+    app:startDestination="@+id/navigation_home">
+
+    <fragment
+        android:id="@+id/navigation_home"
+        android:name="com.procrastinationcollaboration.miraunicornledlamp.ui.home.HomeFragment"
+        android:label="@string/title_home"
+        tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/action_navigation_home_to_navigation_setup"
+            app:destination="@id/navigation_setup"
+            app:popUpTo="@id/main_graph"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/navigation_setup"
+        android:name="com.procrastinationcollaboration.miraunicornledlamp.ui.setup.SetupFragment"
+        android:label="@string/title_setup"
+        tools:layout="@layout/fragment_setup" />
+    <fragment
+        android:id="@+id/navigation_timer"
+        android:name="com.procrastinationcollaboration.miraunicornledlamp.ui.timer.TimerFragment"
+        android:label="@string/title_schedule"
+        tools:layout="@layout/fragment_timer" />
+
+</navigation>

@@ -1,0 +1,29 @@
+<resources>
+    <string name="app_name">Мира Unicorn LED Lamp</string>
+    <string name="title_home">Управление</string>
+    <string name="title_schedule">Таймер</string>
+    <string name="title_setup">Установка</string>
+
+    <string name="title_mode_input">Включить другой режим</string>
+    <string name="title_find_device_btn">Подключиться к устройству</string>
+    <string name="title_connect_wifi_btn">Подключить устройство к домашней WiFi сети</string>
+    <string name="title_reset_btn">Сброс подключения</string>
+    <string name="title_brightness">Яркость</string>
+    <string name="title_lamp_switch">Вкл/Выкл</string>
+    <string name="title_ssid_input">Имя сети</string>
+    <string name="title_pwd_input">Пароль сети</string>
+    <string name="title_setup_timer_btn">Установить время отключения</string>
+    <string name="title_cancel_timer_btn">Отменить отключение по таймеру</string>
+    <string name="title_hour_picker">ч.</string>
+    <string name="title_minute_picker">мин.</string>
+    <string name="title_timer_turnoff">Отключить через</string>
+    <string name="message_connection_dialog">Устройство не найдено. Проверьте WiFI подключение и подключение лампы к электросети. После чего перезагрузите приложение. Если это первое подключение лампы, перейдите в раздел Установка</string>
+    <string name="title_connection_dialog">Ошибка подключения</string>
+    <string name="title_reset_btn_connection_dialog">Перезапустить</string>
+    <string name="title_navigate_btn_connection_dialog">Перейти в раздел Установка</string>
+    <string name="title_timer_canceled_toast">Таймер отменен</string>
+    <string name="title_old_api_dialog">Старая версия Android. Ручной режим</string>
+    <string name="message_old_api_home_network">SSID и пароль вашей домашней сети переданы на сервер. Чтобы управлять лампой, переключитесь на домашнюю сеть вручную</string>
+    <string name="message_old_api_temp_ap_network">"Версия Android не позволяет переключать WiFi сети. Подключитесь к сети %1$s вручную"</string>
+    <string name="title_old_api_dialog_btn_ok">OK</string>
+</resources>

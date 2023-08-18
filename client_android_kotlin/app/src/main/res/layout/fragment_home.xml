@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="homeViewModel"
+            type="com.procrastinationcollaboration.miraunicornledlamp.ui.home.HomeViewModel" />
+
+        <import type="com.google.android.material.textfield.TextInputLayout" />
+
+        <import type="com.google.android.material.textview.MaterialTextView" />
+
+        <import type="com.google.android.material.slider.Slider" />
+
+        <import type="com.skydoves.colorpickerview.ColorPickerView" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".ui.home.HomeFragment">
+
+        <Switch
+            android:id="@+id/lamp_switch"
+            style="@style/Widget.Material3.CompoundButton.Switch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:checked="@{homeViewModel.enabled}"
+            android:thumb="@drawable/switch_thumb_layers"
+            android:tooltipText="@string/title_lamp_switch"
+            android:track="@drawable/switch_track"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:checked="false"
+            tools:ignore="UseSwitchCompatOrMaterialXml" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/mode_input"
+            style="@style/Widget.UnicornLedLamp.TextInputLayout"
+            android:layout_width="150pt"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="70dp"
+            android:hint="@string/title_mode_input"
+            android:visibility='@{homeViewModel.enabled ? TextInputLayout.VISIBLE : TextInputLayout.INVISIBLE }'
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="color">
+
+            <AutoCompleteTextView
+                android:id="@+id/mode_selector"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:completionThreshold="@{999999}"
+                android:inputType="none"
+                android:text="@{homeViewModel.mode}"
+                app:dropDownItemLayout="@{@layout/list_item}"
+                app:dropDownItems="@{homeViewModel.modes}"
+                app:dropDownItemsIncludeEmpty="@{false}"
+                tools:ignore="LabelFor"
+                tools:text="color" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/brightness_label"
+            android:layout_width="150pt"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:labelFor="@+id/brightness_slider"
+            android:text="@string/title_brightness"
+            android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
+            android:visibility="@{homeViewModel.enabled ? MaterialTextView.VISIBLE : MaterialTextView.INVISIBLE }"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/mode_input" />
+
+        <com.google.android.material.slider.Slider
+            android:id="@+id/brightness_slider"
+            android:layout_width="150pt"
+            android:layout_height="wrap_content"
+            android:stepSize="5"
+            android:text="@string/title_brightness"
+            android:value="@{homeViewModel.brightness}"
+            android:valueFrom="0"
+            android:valueTo="100"
+            android:visibility="@{homeViewModel.enabled ? Slider.VISIBLE : Slider.INVISIBLE}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/brightness_label"
+            app:tickVisible="true" />
+
+        <com.skydoves.colorpickerview.ColorPickerView
+            android:id="@+id/color_picker"
+            android:layout_width="300dp"
+            android:layout_height="300dp"
+
+            android:visibility='@{homeViewModel.colorAvailable ? ColorPickerView.VISIBLE : ColorPickerView.GONE}'
+            app:actionMode="last"
+            app:initialColor="@{homeViewModel.color}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/brightness_slider" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
