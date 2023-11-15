@@ -9,7 +9,11 @@
             name="setupViewModel"
             type="com.procrastinationcollaboration.miraunicornledlamp.ui.setup.SetupViewModel" />
 
+        <import type="com.procrastinationcollaboration.miraunicornledlamp.services.Consts" />
+
         <import type="com.procrastinationcollaboration.miraunicornledlamp.services.DeviceConnection" />
+
+        <import type="android.widget.TextView" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -19,10 +23,10 @@
 
         <Button
             android:id="@+id/find_device_btn"
-            android:layout_width="wrap_content"
+            android:layout_width="140pt"
             android:layout_height="wrap_content"
             android:layout_marginTop="10pt"
-            android:enabled="@{setupViewModel.deviceConnectionState == DeviceConnection.NOT_AVAILABLE ||setupViewModel.deviceConnectionState == DeviceConnection.OLD_API_CONNECTED}"
+            android:enabled="@{setupViewModel.connectToDeviceEnabled}"
             android:text="@string/title_find_device_btn"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -32,7 +36,7 @@
             android:id="@+id/ssid_input"
             android:layout_width="120pt"
             android:layout_height="wrap_content"
-            android:enabled="@{setupViewModel.deviceConnectionState == DeviceConnection.TEMP_AP_CONNECTED || setupViewModel.deviceConnectionState == DeviceConnection.WIFI_CONNECTION_FAILED || setupViewModel.deviceConnectionState ==DeviceConnection.OLD_API_CONNECTED}"
+            android:enabled="@{setupViewModel.connectToWiFiEnabled}"
             android:hint="@string/title_ssid_input"
             android:inputType="text"
             app:layout_constraintEnd_toEndOf="parent"
@@ -43,7 +47,7 @@
             android:id="@+id/pwd_input"
             android:layout_width="120pt"
             android:layout_height="wrap_content"
-            android:enabled="@{setupViewModel.deviceConnectionState == DeviceConnection.TEMP_AP_CONNECTED || setupViewModel.deviceConnectionState == DeviceConnection.WIFI_CONNECTION_FAILED || setupViewModel.deviceConnectionState ==DeviceConnection.OLD_API_CONNECTED}"
+            android:enabled="@{setupViewModel.connectToWiFiEnabled}"
             android:hint="@string/title_pwd_input"
             android:inputType="textPassword"
             app:layout_constraintEnd_toEndOf="parent"
@@ -52,25 +56,62 @@
 
         <Button
             android:id="@+id/connect_wifi_btn"
-            android:layout_width="wrap_content"
+            android:layout_width="140pt"
             android:layout_height="wrap_content"
-            android:enabled="@{setupViewModel.deviceConnectionState == DeviceConnection.TEMP_AP_CONNECTED || setupViewModel.deviceConnectionState == DeviceConnection.WIFI_CONNECTION_FAILED || setupViewModel.deviceConnectionState ==DeviceConnection.OLD_API_CONNECTED}"
+            android:enabled="@{setupViewModel.connectToWiFiEnabled}"
             android:text="@string/title_connect_wifi_btn"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.494"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/pwd_input" />
 
+        <Switch
+            android:id="@+id/ext_settings_switch"
+            style="@style/Widget.Material3.CompoundButton.Switch"
+            android:layout_width="140pt"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:checked="@{setupViewModel.extendedSettingsEnabled}"
+            android:text="@string/title_extended_settings"
+            android:textAlignment="textStart"
+            android:textSize="7pt"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/connect_wifi_btn"
+            tools:checked="false"
+            tools:ignore="UseSwitchCompatOrMaterialXml" />
+
+        <EditText
+            android:id="@+id/ip_addr_input"
+            android:layout_width="120pt"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5pt"
+            android:hint="@string/title_ip_addr_input"
+            android:inputType="textUri"
+            android:text="@{setupViewModel.ledLampServiceUrl }"
+            android:visibility="@{setupViewModel.extendedSettingsEnabled ? TextView.VISIBLE : TextView.GONE }"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/ext_settings_switch" />
+
+        <Button
+            android:id="@+id/save_ip_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/title_save_ip_button"
+            android:visibility="@{setupViewModel.extendedSettingsEnabled ? TextView.VISIBLE : TextView.GONE }"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/ip_addr_input" />
+
         <Button
             android:id="@+id/reset_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="68dp"
-            android:enabled="@{setupViewModel.deviceConnectionState == DeviceConnection.TEMP_AP_CONNECTED || setupViewModel.deviceConnectionState == DeviceConnection.WIFI_CONNECTED ||setupViewModel.deviceConnectionState == DeviceConnection.OLD_API_CONNECTED}"
+            android:layout_marginTop="50dp"
             android:text="@string/title_reset_btn"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.265"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/connect_wifi_btn" />
+            app:layout_constraintTop_toBottomOf="@+id/save_ip_btn" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

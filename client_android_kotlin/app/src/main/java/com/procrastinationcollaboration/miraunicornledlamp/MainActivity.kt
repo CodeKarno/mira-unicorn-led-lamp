@@ -6,20 +6,29 @@ import android.os.Bundle
 import android.view.View
 import android.view.ViewTreeObserver
 import androidx.appcompat.app.AppCompatActivity
+import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.procrastinationcollaboration.miraunicornledlamp.repositories.DataStoreRepository
+import com.procrastinationcollaboration.miraunicornledlamp.services.Consts
 import com.procrastinationcollaboration.miraunicornledlamp.services.DeviceConnectionService
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
+    @Inject
+    lateinit var dataStoreRepository: DataStoreRepository
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_main)
-
 
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
         val navHostFragment =
@@ -29,46 +38,56 @@ class MainActivity : AppCompatActivity() {
         val appBarConfiguration = AppBarConfiguration(
             setOf(
                 R.id.navigation_home,
-                R.id.navigation_timer,
                 R.id.navigation_setup
             )
         )
         setupActionBarWithNavController(navController!!, appBarConfiguration)
         navView.setupWithNavController(navController)
 
-        val content: View = findViewById(android.R.id.content)
+        val mainView: View = findViewById(android.R.id.content)
 
-
-        content.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
+        mainView.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
             override fun onPreDraw(): Boolean {
-                content.viewTreeObserver.removeOnPreDrawListener(this)
+                mainView.viewTreeObserver.removeOnPreDrawListener(this)
                 var readyToRender: Boolean
                 var lampConnected: Boolean
                 runBlocking {
-                    lampConnected = DeviceConnectionService.checkDeviceServerAvailable()
+                    lampConnected = DeviceConnectionService.checkDeviceServiceAvailable(getBaseUrlFromStore())
                     readyToRender = true
                 }
+                
                 if (!lampConnected) {
-                    val dialogBuilder = AlertDialog.Builder(this@MainActivity)
-                    dialogBuilder
-                        .setTitle(getString(R.string.title_connection_dialog))
-                        .setMessage(
-                            getString(R.string.message_connection_dialog)
-                        )
-                    dialogBuilder.setPositiveButton(getString(R.string.title_reset_btn_connection_dialog))
-                    { dialog, _ ->
-                        dialog.dismiss()
-                        navigateUpTo(Intent(this@MainActivity, MainActivity::class.java))
-                        startActivity(intent)
-                    }
-                    dialogBuilder.setNegativeButton(getString(R.string.title_navigate_btn_connection_dialog))
-                    { _, _ ->
-                        navController.navigate(R.id.action_navigation_home_to_navigation_setup)
-                    }
-                    dialogBuilder.show()
+                    showNavigationDialog(navController)
                 }
                 return readyToRender
             }
         })
+    }
+
+    private suspend fun getBaseUrlFromStore():String? {
+        if (dataStoreRepository.readBaseUrlFromStore.first().isNullOrEmpty()) {
+            dataStoreRepository.saveServiceAddressToStore(Consts.LAMP_SERVER_BASE_URL)
+        }
+        return dataStoreRepository.readBaseUrlFromStore.first()
+    }
+
+    private fun showNavigationDialog(navController: NavController) {
+        val dialogBuilder = AlertDialog.Builder(this@MainActivity)
+        dialogBuilder
+            .setTitle(getString(R.string.title_connection_dialog))
+            .setMessage(
+                getString(R.string.message_connection_dialog)
+            )
+        dialogBuilder.setPositiveButton(getString(R.string.title_reset_btn_connection_dialog))
+        { dialog, _ ->
+            dialog.dismiss()
+            navigateUpTo(Intent(this@MainActivity, MainActivity::class.java))
+            startActivity(intent)
+        }
+        dialogBuilder.setNegativeButton(getString(R.string.title_navigate_btn_connection_dialog))
+        { _, _ ->
+            navController.navigate(R.id.action_navigation_home_to_navigation_setup)
+        }
+        dialogBuilder.show()
     }
 }

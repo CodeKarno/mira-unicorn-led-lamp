@@ -21,10 +21,5 @@
         android:name="com.procrastinationcollaboration.miraunicornledlamp.ui.setup.SetupFragment"
         android:label="@string/title_setup"
         tools:layout="@layout/fragment_setup" />
-    <fragment
-        android:id="@+id/navigation_timer"
-        android:name="com.procrastinationcollaboration.miraunicornledlamp.ui.timer.TimerFragment"
-        android:label="@string/title_schedule"
-        tools:layout="@layout/fragment_timer" />
 
 </navigation>

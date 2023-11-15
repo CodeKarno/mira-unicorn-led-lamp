@@ -13,25 +13,24 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Switch
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.procrastinationcollaboration.miraunicornledlamp.R
 import com.procrastinationcollaboration.miraunicornledlamp.databinding.FragmentSetupBinding
-import com.procrastinationcollaboration.miraunicornledlamp.services.Consts
-import com.procrastinationcollaboration.miraunicornledlamp.services.DeviceConnection
-import com.procrastinationcollaboration.miraunicornledlamp.services.DeviceConnectionService
-import com.procrastinationcollaboration.miraunicornledlamp.services.LampSetup
-import com.procrastinationcollaboration.miraunicornledlamp.services.LedLamp
+import com.procrastinationcollaboration.miraunicornledlamp.services.*
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class SetupFragment : Fragment() {
     private companion object {
         private const val TAG = "Setup Fragment"
     }
 
-    private val viewModel: SetupViewModel by viewModels()
+    private lateinit var viewModel: SetupViewModel
     private lateinit var binding: FragmentSetupBinding
 
     override fun onCreateView(
@@ -45,12 +44,15 @@ class SetupFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val context = requireContext()
+        viewModel = ViewModelProvider(this)[SetupViewModel::class.java]
+
         binding.setupViewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
-        val context = requireContext()
+
 
         lifecycleScope.launch {
-            val connectedSuccessfully = DeviceConnectionService.checkDeviceServerAvailable()
+            val connectedSuccessfully = DeviceConnectionService.checkDeviceServiceAvailable(viewModel.ledLampServiceUrl.value)
             if (!connectedSuccessfully)
                 viewModel.setConnectionState(DeviceConnection.NOT_AVAILABLE)
             else
@@ -60,12 +62,13 @@ class SetupFragment : Fragment() {
         binding.findDeviceBtn.setOnClickListener {
             connectToDeviceAP(context)
         }
+
         binding.connectWifiBtn.setOnClickListener {
             lifecycleScope.launch {
                 try {
                     val ssid = binding.ssidInput.text.toString()
                     val pass = binding.pwdInput.text.toString()
-                    LampSetup(context).apiService.setup(
+                    LampSetup.getApiService(context.applicationContext).setup(
                         ssid,
                         pass
                     )
@@ -81,8 +84,18 @@ class SetupFragment : Fragment() {
         }
 
         binding.resetBtn.setOnClickListener {
-            reset()
+            reset(context)
             viewModel.setConnectionState(DeviceConnection.NOT_AVAILABLE)
+        }
+
+        binding.saveIpBtn.setOnClickListener()
+        {
+            viewModel.setServiceIpAddress(binding.ipAddrInput.text.toString())
+        }
+
+        binding.extSettingsSwitch.setOnClickListener{ v ->
+            val isChecked = (v as Switch).isChecked
+            viewModel.setExtendedSettingsEnabled(isChecked)
         }
     }
 
@@ -93,7 +106,6 @@ class SetupFragment : Fragment() {
     private fun connectToWifiNetwork(ssid: String, pass: String, context: Context) {
         connectToNetwork(ssid, pass, false, context)
     }
-
 
     private fun connectToNetwork(
         ssid: String,
@@ -146,7 +158,12 @@ class SetupFragment : Fragment() {
         dialogBuilder.setPositiveButton(getString(R.string.title_old_api_dialog_btn_ok)) { dialog, _ -> dialog.dismiss() }
         if (isAccessPoint) {
             dialogBuilder
-                .setMessage(getString(R.string.message_old_api_temp_ap_network, Consts.TEMP_AP_SSID))
+                .setMessage(
+                    getString(
+                        R.string.message_old_api_temp_ap_network,
+                        Consts.TEMP_AP_SSID
+                    )
+                )
                 .show()
         } else {
             dialogBuilder
@@ -155,13 +172,20 @@ class SetupFragment : Fragment() {
         }
     }
 
-    private fun reset() {
+    private fun reset(context: Context) {
         lifecycleScope.launch {
             try {
-                LedLamp.apiService.reset()
+                LedLamp.getApiService(viewModel.ledLampServiceUrl.value).reset()
                 Log.d(TAG, "Connection reset.")
             } catch (e: Exception) {
                 Log.e(TAG, e.message.toString())
+                try {
+                    LampSetup.getApiService(context.applicationContext).reset()
+                    Log.d(TAG, "Connection reset (AP mode).")
+                } catch (ex: Exception) {
+                    Log.e(TAG, "Reset failed completely.")
+                    Log.e(TAG, e.message.toString())
+                }
             }
         }
     }

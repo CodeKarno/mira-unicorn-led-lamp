@@ -6,10 +6,6 @@
         android:icon="@drawable/icon_home"
         android:title="@string/title_home" />
     <item
-        android:id="@+id/navigation_timer"
-        android:icon="@drawable/icon_timer"
-        android:title="@string/title_schedule" />
-    <item
         android:id="@+id/navigation_setup"
         android:icon="@drawable/icon_setup"
         android:title="@string/title_setup" />

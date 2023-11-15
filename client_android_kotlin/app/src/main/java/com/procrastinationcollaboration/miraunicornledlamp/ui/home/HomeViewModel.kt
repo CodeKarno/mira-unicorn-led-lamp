@@ -6,11 +6,16 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
+import com.procrastinationcollaboration.miraunicornledlamp.repositories.DataStoreRepository
 import com.procrastinationcollaboration.miraunicornledlamp.services.Consts
 import com.procrastinationcollaboration.miraunicornledlamp.services.LedLamp
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class HomeViewModel : ViewModel() {
+@HiltViewModel
+class HomeViewModel @Inject constructor(private val dataStoreRepository: DataStoreRepository) : ViewModel() {
     companion object {
         private const val TAG = "HomeViewModel"
     }
@@ -19,7 +24,6 @@ class HomeViewModel : ViewModel() {
     private val _color = MutableLiveData<Int?>()
     private val _brightness = MutableLiveData<Int>()
     private val _modes = MutableLiveData<Array<String>>()
-
     val modes: LiveData<Array<String>> get() = _modes
     val mode: LiveData<String> get() = _mode
     val color: LiveData<Int?> get() = _color
@@ -35,7 +39,8 @@ class HomeViewModel : ViewModel() {
         Log.d(TAG, "get modes called")
         viewModelScope.launch {
             try {
-                val response = LedLamp.apiService.getModes()
+                val baseUrl = dataStoreRepository.readBaseUrlFromStore.first()
+                val response = LedLamp.getApiService(baseUrl).getModes()
                 _modes.value = response.modes
                     .filter { i -> !i.startsWith(Consts.SPEC_MODE_PREFIX) }
                     .toTypedArray()
@@ -50,7 +55,8 @@ class HomeViewModel : ViewModel() {
         Log.d(TAG, "get state")
         viewModelScope.launch {
             try {
-                val response = LedLamp.apiService.getState()
+                val baseUrl = dataStoreRepository.readBaseUrlFromStore.first()
+                val response = LedLamp.getApiService(baseUrl).getState()
                 _mode.value = response.mode
                 _color.value = response.color
                 _brightness.value = response.brightness
@@ -73,9 +79,11 @@ class HomeViewModel : ViewModel() {
     }
 
     fun updateLampStateOnServer(mode: String?, color: String?, brightness: String?) {
+        Log.d(TAG, "updateLampStateOnServer")
         viewModelScope.launch {
             try {
-                val response = LedLamp.apiService.changeState(
+                val baseUrl = dataStoreRepository.readBaseUrlFromStore.first()
+                val response = LedLamp.getApiService(baseUrl).changeState(
                     mode,
                     color,
                     brightness

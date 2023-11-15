@@ -8,18 +8,19 @@ import android.widget.AdapterView
 import android.widget.Switch
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.slider.Slider
 import com.procrastinationcollaboration.miraunicornledlamp.R
 import com.procrastinationcollaboration.miraunicornledlamp.databinding.FragmentHomeBinding
 import com.procrastinationcollaboration.miraunicornledlamp.services.Consts
 import com.skydoves.colorpickerview.listeners.ColorListener
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class HomeFragment : Fragment() {
 
-    private val viewModel: HomeViewModel by viewModels()
     private lateinit var binding: FragmentHomeBinding
-
+    private lateinit var viewModel: HomeViewModel
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -37,6 +38,7 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        viewModel = ViewModelProvider(this)[HomeViewModel::class.java]
         binding.homeViewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
 

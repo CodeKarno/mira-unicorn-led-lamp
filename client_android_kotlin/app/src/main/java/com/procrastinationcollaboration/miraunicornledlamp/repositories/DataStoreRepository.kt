@@ -1,43 +1,48 @@
 package com.procrastinationcollaboration.miraunicornledlamp.repositories
 
+import android.content.Context
 import android.util.Log
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
 import com.procrastinationcollaboration.miraunicornledlamp.services.Consts
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import java.io.IOException
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class DataStoreRepository(private val dataStore: DataStore<Preferences>) {
+val Context.dataStore by preferencesDataStore(
+    name = Consts.USER_PREFERENCES_NAME
+)
+
+@Singleton
+class DataStoreRepository @Inject constructor(@ApplicationContext appContext: Context) {
+    private val dataStore = appContext.dataStore
+
     private companion object PreferenceKeys {
-        val TURNOFF_TIME = stringPreferencesKey(Consts.TURNOFF_TIME_PREFERENCE_KEY)
+        val SERVICE_ADDRESS = stringPreferencesKey(Consts.SERVICE_ADDRESS_PREFERENCE_KEY)
+        private const val TAG = "DataStoreRepository"
     }
 
-    suspend fun saveTimeToStore(time: String) {
-        dataStore.edit { preference -> preference[TURNOFF_TIME] = time }
+    suspend fun saveServiceAddressToStore(ipAddress: String) {
+        dataStore.edit { preference -> preference[SERVICE_ADDRESS] = ipAddress }
     }
 
-    suspend fun clearTime() {
-        dataStore.edit { preference -> preference.remove(TURNOFF_TIME) }
-    }
-
-    val readTimeFromStore: Flow<String?> = dataStore.data
+    val readBaseUrlFromStore: Flow<String?> = dataStore.data
         .catch { exception ->
             if (exception is IOException) {
-                Log.d("DataStoreRepository", exception.message.toString())
+                Log.e(TAG, exception.message.toString())
                 emit(emptyPreferences())
             } else {
                 throw exception
             }
         }
         .map { pref ->
-            val time = pref[TURNOFF_TIME]
-            time
+            val url = pref[SERVICE_ADDRESS]
+            url
         }
 }
-
-

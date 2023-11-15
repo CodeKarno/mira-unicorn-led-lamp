@@ -9,21 +9,13 @@ import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
-import retrofit2.http.Field
-import retrofit2.http.FormUrlEncoded
-import retrofit2.http.POST
+import retrofit2.http.*
 import java.io.InputStream
 import java.security.KeyStore
 import java.security.cert.Certificate
 import java.security.cert.CertificateFactory
-import javax.net.ssl.HostnameVerifier
-import javax.net.ssl.SSLContext
-import javax.net.ssl.SSLSession
-import javax.net.ssl.SSLSocketFactory
-import javax.net.ssl.TrustManagerFactory
+import javax.net.ssl.*
 
-private val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory())
-    .build()
 interface SetupApiService {
     @FormUrlEncoded
     @POST("setup")
@@ -33,15 +25,16 @@ interface SetupApiService {
     ): StatusDto
 
     @POST("reset")
-    suspend fun reset(): StatusDto // for internal purposes
+    suspend fun reset(): StatusDto
 }
 
 
-class LampSetup(context: Context) {
+object LampSetup {
+    private val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
     private val okHttpClientBuilder = OkHttpClient.Builder()
     private val retrofitBuilder = Retrofit
         .Builder()
-    val apiService: SetupApiService by lazy {
+    fun getApiService(context: Context): SetupApiService {
         val client =
             okHttpClientBuilder
                 .sslSocketFactory(getSSlConfig(context))
@@ -52,7 +45,7 @@ class LampSetup(context: Context) {
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             .client(client)
             .build()
-        retrofit.create(SetupApiService::class.java)
+      return retrofit.create(SetupApiService::class.java)
     }
 
     private fun getSSlConfig(context: Context): SSLSocketFactory {
